@@ -8,7 +8,7 @@ $search = $_GET['search'] ?? '';
 $sort = $_GET['sort'] ?? 'name';
 $order = $_GET['order'] ?? 'asc';
 $page = max(1, (int) ($_GET['page'] ?? 1) );
-$perPage = 10;
+$perPage = 1;
 $offset = ($page - 1) * $perPage;
 $whereCaluse = '';
 $params = [];
@@ -20,6 +20,7 @@ if(!empty($search)) {
 $totalStmt = $pdo->prepare("SELECT COUNT(*) FROM products $whereCaluse");
 $totalStmt->execute($params);
 $total = $totalStmt->fetchColumn();
+$totalPages = ceil($total / $perPage); 
 
 $stmt = $pdo->prepare("SELECT * FROM products $whereCaluse ORDER BY $sort $order LIMIT :offset, :perPage");
 foreach($params as $key => &$val) {
@@ -96,24 +97,26 @@ render_header($title);
         </table>
     </div>
 
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            
-                <li class="page-item">
-                    <a class="page-link" href="">1</a>
-                </li>
-                <li class="page-item active">
-                    <a class="page-link" href="">2</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="">3</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="">4</a>
-                </li>
-            
-        </ul>
-    </nav>
+<?php
+function render_pagination(int $currentPage, int $totalPages, string $baseUrl = '?page='): string {
+    if ($totalPages <= 1) {
+        return '';
+    } 
+    $html = '<nav class="mt-4">
+        <ul class="pagination justify-content-center">';
+
+    for ($i = 1; $i <= $totalPages; $i++) {
+        $active = ($i === $currentPage) ? 'active' : '';
+        $html .= '<li class="page-item '.$active.'"><a class="page-link" href="'.$baseUrl .$i .'">'.$i.'</li>';
+    }         
+    $html .= '</ul>
+    </nav>';        
+    return $html;    
+}
+
+    $baseUrl = 'products.php?search='. urlencode($search) .'&sort=' . $sort .'&order='. $order .'&page=';
+    echo render_pagination($page, $totalPages, $baseUrl);
+?>    
 </div>	
 
 
