@@ -2,6 +2,33 @@
 require 'config/db.php';
 require 'config/functions.php';
 require 'config/layout.php';
+require_login();
+
+$search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'name';
+$order = $_GET['order'] ?? 'asc';
+$page = max(1, (int) ($_GET['page'] ?? 1) );
+$perPage = 10;
+$offset = ($page - 1) * $perPage;
+$whereCaluse = '';
+$params = [];
+if(!empty($search)) {
+    $whereCaluse = "WHERE name LIKE :search OR sku LIKE :search";
+    $params['search'] = "%$search%";
+}
+
+$totalStmt = $pdo->prepare("SELECT COUNT(*) FROM products $whereCaluse");
+$totalStmt->execute($params);
+$total = $totalStmt->fetchColumn();
+
+$stmt = $pdo->prepare("SELECT * FROM products $whereCaluse ORDER BY $sort $order LIMIT :offset, :perPage");
+foreach($params as $key => &$val) {
+    $stmt->bindParam(':$key', $val); // ':search' = "%$search%";
+}
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindParam(':perPage', $perPage, PDO::PARAM_INT);
+$stmt->execute();
+$products = $stmt->fetchAll();
 
 $title = '상품 목록';
 render_header($title);
@@ -48,23 +75,23 @@ render_header($title);
                 </tr>
             </thead>
             <tbody>
-                
+<?php foreach($products AS $product): ?>                
 				<tr>
-					<td>1</td>
-					<td>상품1</td>
-					<td>A001</td>
-					<td>30</td>
-					<td>9,000원</td>
+					<td><?= $product['id'] ?></td>
+					<td><?= htmlspecialchars($product['name']) ?></td>
+					<td><?= htmlspecialchars($product['sku']) ?></td>
+					<td><?= $product['quantity'] ?></td>
+					<td><?= number_format($product['price']) ?>원</td>
 					<td>
 						<div class="btn-group btn-group-sm" role="group">
-							<a href="" class="btn btn-outline-primary">수정</a>
-							<a href="" class="btn btn-outline-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
-							<a href="" class="btn btn-outline-success">입고</a>
-							<a href="" class="btn btn-outline-warning">출고</a>
+							<a href="product_form.php?id=<?= $product['id'] ?>" class="btn btn-outline-primary">수정</a>
+							<a href="product_delete.php?id=<?= $product['id'] ?>" class="btn btn-outline-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+							<a href="stock.php?id=<?= $product['id'] ?>&action=in" class="btn btn-outline-success">입고</a>
+							<a href="stock.php?id=<?= $product['id'] ?>&action=out" class="btn btn-outline-warning">출고</a>
 						</div>
 					</td>
 				</tr>
-                
+<?php endforeach; ?>                
             </tbody>
         </table>
     </div>

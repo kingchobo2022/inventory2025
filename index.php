@@ -3,6 +3,8 @@ require 'config/db.php';
 require 'config/functions.php';
 require 'config/layout.php';
 
+require_login();
+
 $title = '재고관리 대시보드';
 render_header($title);
 ?>
@@ -70,4 +72,4 @@ render_header($title);
 </div>
 
 <?php
-render_fooer();
+render_footer();
