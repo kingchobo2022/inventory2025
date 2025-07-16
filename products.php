@@ -8,23 +8,22 @@ $search = $_GET['search'] ?? '';
 $sort = $_GET['sort'] ?? 'name';
 $order = $_GET['order'] ?? 'asc';
 $page = max(1, (int) ($_GET['page'] ?? 1) );
-$perPage = 1;
+$perPage = 2;
 $offset = ($page - 1) * $perPage;
-$whereCaluse = '';
+$whereClause = '';
 $params = [];
 if(!empty($search)) {
-    $whereCaluse = "WHERE name LIKE :search OR sku LIKE :search";
+    $whereClause = "WHERE name LIKE :search OR sku LIKE :search";
     $params['search'] = "%$search%";
 }
 
-$totalStmt = $pdo->prepare("SELECT COUNT(*) FROM products $whereCaluse");
+$totalStmt = $pdo->prepare("SELECT COUNT(*) FROM products $whereClause");
 $totalStmt->execute($params);
 $total = $totalStmt->fetchColumn();
 $totalPages = ceil($total / $perPage); 
-
-$stmt = $pdo->prepare("SELECT * FROM products $whereCaluse ORDER BY $sort $order LIMIT :offset, :perPage");
+$stmt = $pdo->prepare("SELECT * FROM products $whereClause ORDER BY $sort $order LIMIT :offset, :perPage");
 foreach($params as $key => &$val) {
-    $stmt->bindParam(':$key', $val); // ':search' = "%$search%";
+    $stmt->bindParam(":$key", $val); // ':search' = "%$search%";
 }
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->bindParam(':perPage', $perPage, PDO::PARAM_INT);
@@ -43,18 +42,18 @@ render_header($title);
 
     <form class="row g-3 mb-3" method="get">
         <div class="col-md-4">
-            <input type="text" name="search" class="form-control" placeholder="상품명 또는 SKU 검색" value="">
+            <input type="text" name="search" class="form-control" placeholder="상품명 또는 SKU 검색" value="<?= htmlspecialchars($search) ?>">
         </div>
         <div class="col-md-3">
             <select name="sort" class="form-select">
-                <option value="name">상품명</option>
-                <option value="quantity">수량</option>
+                <option value="name" <?= $sort === 'name' ? 'selected' : '' ?>>상품명</option>
+                <option value="quantity" <?= $sort === 'quantity' ? 'selected': '' ?>>수량</option>
             </select>
         </div>
         <div class="col-md-3">
             <select name="order" class="form-select">
-                <option value="asc">오름차순</option>
-                <option value="desc">내림차순</option>
+                <option value="asc" <?= $order === 'asc' ? 'selected' : '' ?>>오름차순</option>
+                <option value="desc" <?= $order == 'desc' ? 'selected' : '' ?>>내림차순</option>
             </select>
         </div>
         <div class="col-md-2">
