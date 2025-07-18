@@ -18,7 +18,7 @@ while ($conn = stream_socket_accept($server)) {
         $headers .= "Connection: Upgrade\r\n";
         $headers .= "Sec-WebSocket-Accept: $key\r\n\r\n";
         fwrite($conn, $headers);
-        echo "Client connected\n";
+        echo "Client connected\n";   
 
         // 간단한 메시지 처리 (한 번만 읽음)
         $data = fread($conn, 1000);
