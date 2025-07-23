@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>제목</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="products.php">재고관리</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="products.php">상품</a></li>
+        <li class="nav-item"><a class="nav-link" href="product_form.php">상품 추가</a></li>
+        <li class="nav-item"><a class="nav-link" href="stock_log.php">입출고 이력</a></li>
+        <li class="nav-item"><a class="nav-link" href="stats.php">통계</a></li>
+        <li class="nav-item"><a class="nav-link" href="logout.php">로그아웃</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-4">
+
+
+<h4>입고 처리</h4>
+
+<div class="alert alert-danger">에러메시지</div>
+
+<form method="post">
+    <div class="mb-3">
+        <label>수량</label>
+        <input type="number" name="amount" class="form-control" min="1" required>
+    </div>
+    <button class="btn btn-primary">처리</button>
+    <a href="products.php" class="btn btn-secondary">취소</a>
+</form>
+
+
+</div>
+</body>
+</html>	

@@ -58,6 +58,7 @@ render_header($title);
         </div>
         <div class="col-md-2">
             <button class="btn btn-outline-secondary w-100">검색</button>
+
         </div>
 
     </form>
@@ -94,6 +95,8 @@ render_header($title);
 <?php endforeach; ?>                
             </tbody>
         </table>
+
+        <a href="export_excel_xlsx.php" class="btn btn-secondary">엑셀 다운로드</a>
     </div>
 
 <?php

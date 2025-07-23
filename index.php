@@ -2,8 +2,17 @@
 require 'config/db.php';
 require 'config/functions.php';
 require 'config/layout.php';
-
 require_login();
+
+$totalProducts = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
+$totalStock = $pdo->query("SELECT SUM(quantity) FROM products")->fetchColumn();
+
+$sql = "SELECT a.*, b.name FROM stock_logs a JOIN products b ON a.product_id=b.id 
+ ORDER BY a.changed_at DESC LIMIT 5";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$logs = $stmt->fetchAll();
+
 
 $title = '재고관리 대시보드';
 render_header($title);
@@ -15,7 +24,7 @@ render_header($title);
             <div class="card shadow-sm border-start border-4 border-primary">
                 <div class="card-body">
                     <h5 class="card-title">총 상품 수</h5>
-                    <p class="card-text display-5 fw-bold text-primary">00</p>
+                    <p class="card-text display-5 fw-bold text-primary"><?= $totalProducts ?></p>
                 </div>
             </div>
         </div>
@@ -23,7 +32,7 @@ render_header($title);
             <div class="card shadow-sm border-start border-4 border-success">
                 <div class="card-body">
                     <h5 class="card-title">전체 재고 수량</h5>
-                    <p class="card-text display-5 fw-bold text-success">000</p>
+                    <p class="card-text display-5 fw-bold text-success"><?= $totalStock ?></p>
                 </div>
             </div>
         </div>
@@ -45,26 +54,20 @@ render_header($title);
                     </tr>
                 </thead>
                 <tbody>
+                    <?php foreach($logs as $log): ?>
 					<tr>
-						<td>상품명1</td>
+						<td><?= htmlspecialchars($log['name']) ?></td>
 						<td>
-							<span class="badge bg-success">
-								입고
-							</span>
+                            <?php if($log['change_type'] == 'in'): ?>
+							<span class="badge bg-success">입고</span>
+                            <?php else: ?>
+							<span class="badge bg-danger">출고</span>
+                            <?php endif; ?>
 						</td>
-						<td>00</td>
-						<td>YYYY-mm-dd HH:ii:ss</td>
+						<td><?= number_format($log['change_amount']) ?></td>
+						<td><?= date('y년 m월 d일 H:i', strtotime($log['changed_at'])); ?></td>
 					</tr>
-					<tr>
-						<td>상품명2</td>
-						<td>
-							<span class="badge bg-danger">
-								출고
-							</span>
-						</td>
-						<td>00</td>
-						<td>YYYY-mm-dd HH:ii:ss</td>
-					</tr>
+                    <?php endforeach; ?>
 				</tbody>
             </table>
         </div>
